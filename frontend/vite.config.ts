@@ -18,8 +18,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: false,
-    // Permitir todos los hosts de Render (usar true para permitir todos)
-    allowedHosts: true,
+    // Permitir todos los hosts de Render
+    allowedHosts: [
+      'gestion-de-inventario-aeu5.onrender.com',
+      '.onrender.com',
+      'localhost',
+    ],
   },
 })
 
