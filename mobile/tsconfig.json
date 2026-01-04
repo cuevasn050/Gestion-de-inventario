@@ -1,14 +1,18 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "jsx": "react-native"
+    "jsx": "react-native",
+    "lib": ["esnext"],
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true
   },
   "include": [
     "**/*.ts",
