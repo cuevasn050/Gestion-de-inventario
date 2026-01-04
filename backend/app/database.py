@@ -13,7 +13,7 @@ engine = create_engine(
     max_overflow=10,
     connect_args={
         "connect_timeout": 5,  # Timeout de conexión más corto
-        "sslmode": "require",  # Supabase requiere SSL
+        # SSL se maneja automáticamente por Supabase Session Pooler
     },
     echo=False,  # Cambiar a True para ver las queries SQL
     pool_timeout=10,  # Timeout para obtener conexión del pool
