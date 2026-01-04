@@ -17,23 +17,72 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica contraseña"""
     try:
         # Bcrypt tiene un límite de 72 bytes, truncar si es necesario
+        # Asegurarse de que la contraseña sea una cadena válida
+        if not plain_password or not isinstance(plain_password, str):
+            return False
+        
         password_bytes = plain_password.encode('utf-8')
+        # Truncar a 72 bytes si es necesario
         if len(password_bytes) > 72:
             plain_password = password_bytes[:72].decode('utf-8', errors='ignore')
+        
+        # Verificar que el hash sea válido
+        if not hashed_password or not isinstance(hashed_password, str):
+            return False
+        
+        # Usar verify directamente con la contraseña (ya truncada si era necesario)
         return pwd_context.verify(plain_password, hashed_password)
+    except ValueError as e:
+        # Error específico de bcrypt sobre longitud
+        if "cannot be longer than 72 bytes" in str(e):
+            # Intentar truncar más agresivamente
+            try:
+                password_bytes = plain_password.encode('utf-8')[:72]
+                plain_password_truncated = password_bytes.decode('utf-8', errors='ignore')
+                return pwd_context.verify(plain_password_truncated, hashed_password)
+            except:
+                print(f"[AUTH ERROR] Error al verificar contraseña (después de truncar): {e}")
+                return False
+        print(f"[AUTH ERROR] Error al verificar contraseña: {e}")
+        return False
     except Exception as e:
         # Si hay un error al verificar (hash corrupto, etc.), retornar False
         print(f"[AUTH ERROR] Error al verificar contraseña: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
 def get_password_hash(password: str) -> str:
     """Hash de contraseña"""
-    # Bcrypt tiene un límite de 72 bytes, truncar si es necesario
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > 72:
-        password = password_bytes[:72].decode('utf-8', errors='ignore')
-    return pwd_context.hash(password)
+    try:
+        # Bcrypt tiene un límite de 72 bytes, truncar si es necesario
+        if not password or not isinstance(password, str):
+            raise ValueError("Password must be a non-empty string")
+        
+        password_bytes = password.encode('utf-8')
+        # Truncar a 72 bytes si es necesario
+        if len(password_bytes) > 72:
+            password = password_bytes[:72].decode('utf-8', errors='ignore')
+        
+        return pwd_context.hash(password)
+    except ValueError as e:
+        if "cannot be longer than 72 bytes" in str(e):
+            # Intentar truncar más agresivamente
+            try:
+                password_bytes = password.encode('utf-8')[:72]
+                password_truncated = password_bytes.decode('utf-8', errors='ignore')
+                return pwd_context.hash(password_truncated)
+            except Exception as e2:
+                print(f"[AUTH ERROR] Error al generar hash (después de truncar): {e2}")
+                raise
+        print(f"[AUTH ERROR] Error al generar hash: {e}")
+        raise
+    except Exception as e:
+        print(f"[AUTH ERROR] Error al generar hash: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
