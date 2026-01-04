@@ -8,8 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Clave para guardar la URL del backend en AsyncStorage
 const BACKEND_URL_KEY = '@aura_backend_url';
 
-// URL por defecto (se puede cambiar desde la app)
-let currentApiUrl = 'http://192.168.1.113:8000';
+// URL por defecto (vacía - debe configurarse desde la app)
+let currentApiUrl = '';
 
 // Inicializar URL al cargar (síncrono para compatibilidad)
 const initializeApiUrl = () => {

@@ -8,17 +8,70 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
+import { saveBackendUrl, getApiUrlAsync } from '../config/api';
+import { apiService } from '../services/api';
 
 export default function LoginScreen({ navigation }: any) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showUrlConfig, setShowUrlConfig] = useState(false);
+  const [backendUrl, setBackendUrl] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
   const { login } = useAuth();
 
+  // Cargar URL actual al montar y mostrar modal si no hay URL configurada
+  React.useEffect(() => {
+    getApiUrlAsync().then(url => {
+      setBackendUrl(url);
+      // Si no hay URL configurada, mostrar el modal automáticamente
+      if (!url || url.trim() === '') {
+        setShowUrlConfig(true);
+      }
+    });
+  }, []);
+
+  const handleSaveUrl = async () => {
+    if (!backendUrl.trim()) {
+      Alert.alert('Error', 'Por favor ingresa una URL válida');
+      return;
+    }
+
+    // Validar formato
+    if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+      Alert.alert('Error', 'La URL debe comenzar con http:// o https://');
+      return;
+    }
+
+    setUrlLoading(true);
+    try {
+      await saveBackendUrl(backendUrl.trim());
+      await apiService.updateBaseUrl();
+      setShowUrlConfig(false);
+      Alert.alert('Éxito', 'URL del backend configurada correctamente');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Error al guardar la URL');
+    } finally {
+      setUrlLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
+    // Verificar que haya URL configurada antes de intentar login
+    const currentUrl = await getApiUrlAsync();
+    if (!currentUrl || currentUrl.trim() === '') {
+      Alert.alert(
+        'URL no configurada',
+        'Por favor configura la URL del servidor antes de iniciar sesión.',
+        [{ text: 'Configurar', onPress: () => setShowUrlConfig(true) }]
+      );
+      return;
+    }
+
     if (!username || !password) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
@@ -31,16 +84,30 @@ export default function LoginScreen({ navigation }: any) {
     } catch (error: any) {
       console.error('Error de login:', error);
       let errorMessage = 'Error al iniciar sesión';
+      let isConnectionError = false;
       
       if (error.response) {
         errorMessage = error.response.data?.detail || error.response.data?.message || errorMessage;
-      } else if (error.request) {
+      } else if (error.request || error.networkError || error.message?.includes('conexión') || error.message?.includes('timeout')) {
         errorMessage = 'No se pudo conectar al servidor. Verifica que el backend esté corriendo y que la IP sea correcta.';
+        isConnectionError = true;
       } else {
         errorMessage = error.message || errorMessage;
       }
       
-      Alert.alert('Error', errorMessage);
+      if (isConnectionError) {
+        // Mostrar opción para configurar URL
+        Alert.alert(
+          'Error de conexión',
+          errorMessage,
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Configurar URL', onPress: () => setShowUrlConfig(true) }
+          ]
+        );
+      } else {
+        Alert.alert('Error', errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -119,9 +186,65 @@ export default function LoginScreen({ navigation }: any) {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.configButton}
+              onPress={() => setShowUrlConfig(true)}
+            >
+              <Text style={styles.configButtonText}>Configurar URL del servidor</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
+
+      {/* Modal para configurar URL */}
+      <Modal
+        visible={showUrlConfig}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowUrlConfig(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Configurar URL del Backend</Text>
+            <Text style={styles.modalSubtitle}>
+              Ingresa la dirección IP y puerto del servidor
+            </Text>
+            <Text style={styles.modalExample}>
+              Ejemplo: http://192.168.1.113:8000
+            </Text>
+            
+            <TextInput
+              style={styles.urlInput}
+              placeholder="http://192.168.1.113:8000"
+              placeholderTextColor="#6B7280"
+              value={backendUrl}
+              onChangeText={setBackendUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={() => setShowUrlConfig(false)}
+              >
+                <Text style={styles.modalButtonCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSave, urlLoading && styles.modalButtonDisabled]}
+                onPress={handleSaveUrl}
+                disabled={urlLoading}
+              >
+                <Text style={styles.modalButtonSaveText}>
+                  {urlLoading ? 'Guardando...' : 'Guardar'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -226,5 +349,90 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     letterSpacing: 0.5,
+  },
+  configButton: {
+    marginTop: 16,
+    padding: 12,
+    alignItems: 'center',
+  },
+  configButtonText: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#1F2937',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  modalExample: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 16,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  urlInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    padding: 16,
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  modalButtonSave: {
+    backgroundColor: '#374151',
+  },
+  modalButtonDisabled: {
+    opacity: 0.6,
+  },
+  modalButtonCancelText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalButtonSaveText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
