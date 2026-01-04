@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/DashboardScreen';
@@ -21,7 +21,7 @@ export default function TabNavigator() {
           borderTopWidth: 1,
           borderTopColor: 'rgba(255, 255, 255, 0.1)',
           height: 65,
-          paddingBottom: 8,
+          paddingBottom: Platform.OS === 'android' ? 35 : 8, // Más espacio en Android para los botones del sistema
           paddingTop: 8,
           elevation: 8,
           shadowColor: '#000',
