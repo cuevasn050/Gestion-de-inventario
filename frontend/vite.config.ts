@@ -14,6 +14,16 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: false,
+    // Permitir todos los hosts de Render
+    allowedHosts: [
+      '.onrender.com',
+      'localhost',
+    ],
+  },
 })
 
 
