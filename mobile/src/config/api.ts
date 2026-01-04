@@ -12,7 +12,7 @@ const BACKEND_URL_KEY = '@aura_backend_url';
 // Si tu backend está en producción, cambia esto a tu dominio público
 // Ejemplo: 'https://api.tudominio.com' o 'https://tudominio.com/api'
 // Si está vacío, la app pedirá la URL al usuario (útil para desarrollo local)
-const PRODUCTION_API_URL = ''; // Cambia esto cuando tengas un servidor en producción
+const PRODUCTION_API_URL = 'https://aura-backend-u905.onrender.com'; // URL del backend en producción
 
 // URL por defecto (vacía - debe configurarse desde la app si no hay producción)
 let currentApiUrl = PRODUCTION_API_URL;

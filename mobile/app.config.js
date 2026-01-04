@@ -36,10 +36,8 @@ export default {
     ],
     scheme: "aura",
     extra: {
-      // Para producción: cambia esto a tu dominio público
-      // Ejemplo: "https://api.tudominio.com" o "https://tudominio.com/api"
-      // Para desarrollo local: déjalo vacío y la app pedirá la IP
-      apiUrl: process.env.API_URL || "",
+      // URL del backend en producción (Render)
+      apiUrl: process.env.API_URL || "https://aura-backend-u905.onrender.com",
       eas: {
         projectId: "6cfe36ce-1b8e-4173-afdd-9b703f8d2879"
       }
