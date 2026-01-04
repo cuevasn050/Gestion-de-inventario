@@ -160,9 +160,13 @@ def reset_password_admin(
     ⚠️ SOLO PARA DESARROLLO/EMERGENCIA - Remover en producción
     """
     try:
+        print(f"[RESET PASSWORD] Iniciando reset para usuario: {username}")
         user = db.query(Usuario).filter(Usuario.username == username).first()
         if not user:
+            print(f"[RESET PASSWORD] Usuario '{username}' no encontrado")
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+        print(f"[RESET PASSWORD] Usuario encontrado: {user.username}, activo: {user.activo}")
         
         # Validar nueva contraseña
         if len(password_data.new_password) < 6:
@@ -172,19 +176,27 @@ def reset_password_admin(
             )
         
         # Actualizar contraseña
+        print(f"[RESET PASSWORD] Generando nuevo hash para contraseña de longitud: {len(password_data.new_password)}")
         new_hash = get_password_hash(password_data.new_password)
-        print(f"[RESET PASSWORD] Usuario: {username}, Nuevo hash: {new_hash[:30]}...")
+        print(f"[RESET PASSWORD] Hash generado (primeros 30 chars): {new_hash[:30]}...")
+        
         user.password_hash = new_hash
         db.commit()
         db.refresh(user)
         
-        return {"message": f"Contraseña de '{username}' actualizada exitosamente", "hash_preview": new_hash[:30]}
+        print(f"[RESET PASSWORD] Contraseña actualizada exitosamente para {username}")
+        return {
+            "message": f"Contraseña de '{username}' actualizada exitosamente",
+            "hash_preview": new_hash[:30],
+            "username": username
+        }
     except HTTPException:
         raise
     except Exception as e:
         print(f"[RESET PASSWORD ERROR] {e}")
         import traceback
         traceback.print_exc()
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al resetear contraseña: {str(e)}")
 
 
