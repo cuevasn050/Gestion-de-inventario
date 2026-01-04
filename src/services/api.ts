@@ -17,22 +17,6 @@ class ApiService {
     console.log('[API] Base URL inicial:', API_CONFIG.BASE_URL);
     console.log('[API] Timeout configurado:', API_CONFIG.TIMEOUT, 'ms');
 
-    // Actualizar URL desde AsyncStorage al inicializar
-    this.updateBaseUrl();
-  }
-
-  // Actualizar la URL del backend dinámicamente
-  async updateBaseUrl(): Promise<void> {
-    try {
-      const url = await getApiUrlAsync();
-      this.api.defaults.baseURL = url;
-      API_CONFIG.BASE_URL = url;
-      console.log('[API] Base URL actualizada:', url);
-    } catch (error) {
-      console.error('[API] Error al actualizar URL:', error);
-    }
-  }
-
     // Interceptor para agregar token a las peticiones
     this.api.interceptors.request.use(
       async (config) => {
@@ -57,8 +41,8 @@ class ApiService {
       }
     );
 
-        // Interceptor para manejar errores y logging
-        this.api.interceptors.response.use(
+    // Interceptor para manejar errores y logging
+    this.api.interceptors.response.use(
           (response) => response,
           async (error) => {
             try {
@@ -174,6 +158,21 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+
+    // Actualizar URL desde AsyncStorage al inicializar
+    this.updateBaseUrl();
+  }
+
+  // Actualizar la URL del backend dinámicamente
+  async updateBaseUrl(): Promise<void> {
+    try {
+      const url = await getApiUrlAsync();
+      this.api.defaults.baseURL = url;
+      API_CONFIG.BASE_URL = url;
+      console.log('[API] Base URL actualizada:', url);
+    } catch (error) {
+      console.error('[API] Error al actualizar URL:', error);
+    }
   }
 
   get instance(): AxiosInstance {
