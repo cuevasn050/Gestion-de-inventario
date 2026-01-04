@@ -3,10 +3,23 @@
 ## Variables que DEBES configurar en el Backend:
 
 ### 1. DATABASE_URL ✅
-**Ya la tienes:**
+**URL de Supabase** - Usa tu conexión de Supabase:
+
+**Cómo obtenerla:**
+1. Ve a tu proyecto en Supabase → **Settings** → **Database**
+2. Busca la sección **"Connection string"** o **"Connection pooling"**
+3. Copia la URI que se ve así:
+   ```
+   postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+   ```
+4. Reemplaza `[YOUR-PASSWORD]` con tu contraseña real de Supabase
+
+**Ejemplo:**
 ```
-postgresql://aura_user:BeLr0hbo80D51ELq0o8LiKeiIILWOLqm@dpg-d5dcdt6uk2gs738tfu30-a/aura_8j01
+postgresql://postgres:mi_password123@db.abcdefghijklmnop.supabase.co:5432/postgres?sslmode=require
 ```
+
+**Nota:** Asegúrate de agregar `?sslmode=require` al final si Supabase lo requiere (generalmente sí).
 
 ### 2. JWT_SECRET_KEY ⚠️
 **Debes generarla tú** - Es una clave secreta para firmar los tokens JWT.
