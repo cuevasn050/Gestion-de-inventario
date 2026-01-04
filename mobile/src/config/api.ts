@@ -52,28 +52,33 @@ export const getApiUrl = (): string => {
 
 // Obtener URL del backend de forma asíncrona (para actualizar)
 export const getApiUrlAsync = async (): Promise<string> => {
+  // PRIORIDAD 1: Si hay URL de producción, usarla primero
+  if (PRODUCTION_API_URL && PRODUCTION_API_URL.trim() !== '') {
+    currentApiUrl = PRODUCTION_API_URL;
+    console.log('[API] Usando URL de producción:', currentApiUrl);
+    return currentApiUrl;
+  }
+  
+  // PRIORIDAD 2: Usar la de Expo config
+  if (Constants.expoConfig?.extra?.apiUrl && Constants.expoConfig.extra.apiUrl.trim() !== '') {
+    currentApiUrl = Constants.expoConfig.extra.apiUrl;
+    console.log('[API] Usando URL de Expo config:', currentApiUrl);
+    return currentApiUrl;
+  }
+  
+  // PRIORIDAD 3: Si no hay URL de producción, buscar en AsyncStorage (solo para desarrollo)
   try {
     const savedUrl = await AsyncStorage.getItem(BACKEND_URL_KEY);
     if (savedUrl && savedUrl.trim() !== '') {
       currentApiUrl = savedUrl.trim();
+      console.log('[API] Usando URL guardada en AsyncStorage:', currentApiUrl);
       return currentApiUrl;
     }
   } catch (error) {
     console.warn('[API] Error al leer URL guardada:', error);
   }
   
-  // Si no hay URL guardada, usar la de Expo config
-  if (Constants.expoConfig?.extra?.apiUrl && Constants.expoConfig.extra.apiUrl.trim() !== '') {
-    currentApiUrl = Constants.expoConfig.extra.apiUrl;
-    return currentApiUrl;
-  }
-  
-  // Si hay URL de producción, usarla
-  if (PRODUCTION_API_URL && PRODUCTION_API_URL.trim() !== '') {
-    currentApiUrl = PRODUCTION_API_URL;
-    return currentApiUrl;
-  }
-  
+  console.warn('[API] No se encontró URL configurada, usando:', currentApiUrl);
   return currentApiUrl;
 };
 

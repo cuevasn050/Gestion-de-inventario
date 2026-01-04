@@ -6,15 +6,17 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
+    // Inicializar con URL de producción si está disponible
+    const initialUrl = API_CONFIG.BASE_URL || 'https://aura-backend-u905.onrender.com';
     this.api = axios.create({
-      baseURL: API_CONFIG.BASE_URL,
+      baseURL: initialUrl,
       timeout: API_CONFIG.TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    console.log('[API] Base URL inicial:', API_CONFIG.BASE_URL);
+    console.log('[API] Base URL inicial:', initialUrl);
     console.log('[API] Timeout configurado:', API_CONFIG.TIMEOUT, 'ms');
 
     // Interceptor para agregar token a las peticiones
@@ -167,11 +169,24 @@ class ApiService {
   async updateBaseUrl(): Promise<void> {
     try {
       const url = await getApiUrlAsync();
-      this.api.defaults.baseURL = url;
-      API_CONFIG.BASE_URL = url;
-      console.log('[API] Base URL actualizada:', url);
+      if (url && url.trim() !== '') {
+        this.api.defaults.baseURL = url;
+        API_CONFIG.BASE_URL = url;
+        console.log('[API] Base URL actualizada:', url);
+      } else {
+        // Si no hay URL, usar la de producción por defecto
+        const productionUrl = 'https://aura-backend-u905.onrender.com';
+        this.api.defaults.baseURL = productionUrl;
+        API_CONFIG.BASE_URL = productionUrl;
+        console.log('[API] No hay URL configurada, usando producción:', productionUrl);
+      }
     } catch (error) {
       console.error('[API] Error al actualizar URL:', error);
+      // En caso de error, usar la URL de producción
+      const productionUrl = 'https://aura-backend-u905.onrender.com';
+      this.api.defaults.baseURL = productionUrl;
+      API_CONFIG.BASE_URL = productionUrl;
+      console.log('[API] Error al actualizar, usando URL de producción:', productionUrl);
     }
   }
 
