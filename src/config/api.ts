@@ -8,8 +8,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Clave para guardar la URL del backend en AsyncStorage
 const BACKEND_URL_KEY = '@aura_backend_url';
 
-// URL por defecto (vacía - debe configurarse desde la app)
-let currentApiUrl = '';
+// URL por defecto para producción (si tienes un servidor deployado)
+// Si tu backend está en producción, cambia esto a tu dominio público
+// Ejemplo: 'https://api.tudominio.com' o 'https://tudominio.com/api'
+// Si está vacío, la app pedirá la URL al usuario (útil para desarrollo local)
+const PRODUCTION_API_URL = ''; // Cambia esto cuando tengas un servidor en producción
+
+// URL por defecto (vacía - debe configurarse desde la app si no hay producción)
+let currentApiUrl = PRODUCTION_API_URL;
 
 // Inicializar URL al cargar (síncrono para compatibilidad)
 const initializeApiUrl = () => {
@@ -57,8 +63,14 @@ export const getApiUrlAsync = async (): Promise<string> => {
   }
   
   // Si no hay URL guardada, usar la de Expo config
-  if (Constants.expoConfig?.extra?.apiUrl) {
+  if (Constants.expoConfig?.extra?.apiUrl && Constants.expoConfig.extra.apiUrl.trim() !== '') {
     currentApiUrl = Constants.expoConfig.extra.apiUrl;
+    return currentApiUrl;
+  }
+  
+  // Si hay URL de producción, usarla
+  if (PRODUCTION_API_URL && PRODUCTION_API_URL.trim() !== '') {
+    currentApiUrl = PRODUCTION_API_URL;
     return currentApiUrl;
   }
   

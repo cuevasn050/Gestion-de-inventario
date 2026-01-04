@@ -27,8 +27,9 @@ export default function LoginScreen({ navigation }: any) {
   // Cargar URL actual al montar y mostrar modal si no hay URL configurada
   React.useEffect(() => {
     getApiUrlAsync().then(url => {
-      setBackendUrl(url);
+      setBackendUrl(url || '');
       // Si no hay URL configurada, mostrar el modal automáticamente
+      // (solo si no es una URL de producción)
       if (!url || url.trim() === '') {
         setShowUrlConfig(true);
       }
