@@ -32,12 +32,6 @@
         {
           "cameraPermission": "Permitir acceso a la cámara para escanear códigos QR"
         }
-      ],
-      [
-        "expo-barcode-scanner",
-        {
-          "barCodeTypes": ["qr"]
-        }
       ]
     ],
     "scheme": "aura"
