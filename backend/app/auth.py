@@ -15,11 +15,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica contraseña"""
-    # Bcrypt tiene un límite de 72 bytes, truncar si es necesario
-    password_bytes = plain_password.encode('utf-8')
-    if len(password_bytes) > 72:
-        plain_password = password_bytes[:72].decode('utf-8', errors='ignore')
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Bcrypt tiene un límite de 72 bytes, truncar si es necesario
+        password_bytes = plain_password.encode('utf-8')
+        if len(password_bytes) > 72:
+            plain_password = password_bytes[:72].decode('utf-8', errors='ignore')
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception as e:
+        # Si hay un error al verificar (hash corrupto, etc.), retornar False
+        print(f"[AUTH ERROR] Error al verificar contraseña: {e}")
+        return False
 
 
 def get_password_hash(password: str) -> str:

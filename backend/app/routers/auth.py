@@ -33,8 +33,17 @@ def login(credentials: UsuarioLogin, db: Session = Depends(get_db)):
             )
         
         print(f"[LOGIN DEBUG] Usuario encontrado: {user.username}, activo: {user.activo}")
-        password_match = verify_password(password_clean, user.password_hash)
-        print(f"[LOGIN DEBUG] Contraseña coincide: {password_match}")
+        try:
+            password_match = verify_password(password_clean, user.password_hash)
+            print(f"[LOGIN DEBUG] Contraseña coincide: {password_match}")
+        except Exception as e:
+            print(f"[LOGIN ERROR] Error al verificar contraseña: {e}")
+            # Si el hash está corrupto, intentar regenerarlo con la contraseña actual
+            # (solo para debugging, en producción esto no debería pasar)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error al verificar contraseña. El hash puede estar corrupto."
+            )
         
         if not password_match:
             # Intentar también con la contraseña sin limpiar por si acaso
