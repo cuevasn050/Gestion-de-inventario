@@ -1,0 +1,29 @@
+# OSX
+.DS_Store
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Metro
+.metro-health-check*
+
+# Temporary files
+*.log
+*.tmp
