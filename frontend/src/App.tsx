@@ -47,14 +47,16 @@ function AppRoutes() {
                 {user?.rol === 'JEFE_OBRA' ? (
                   <div className="md:hidden flex-1 overflow-y-auto relative">
                     <MobileView />
+                    {/* Asistente flotante */}
+                    <AsistenteFloating />
                   </div>
                 ) : (
                   <div className="hidden md:block flex-1 overflow-y-auto relative">
                     <DesktopView />
+                    {/* Asistente flotante */}
+                    <AsistenteFloating />
                   </div>
                 )}
-                {/* Asistente flotante */}
-                <AsistenteFloating />
               </div>
             </div>
           </ProtectedRoute>
@@ -70,8 +72,9 @@ function AppRoutes() {
                 <Header />
                 <div className="flex-1 overflow-y-auto relative">
                   <GestionarEquiposView />
+                  {/* Asistente flotante */}
+                  <AsistenteFloating />
                 </div>
-                <AsistenteFloating />
               </div>
             </div>
           </ProtectedRoute>
@@ -87,8 +90,9 @@ function AppRoutes() {
                 <Header />
                 <div className="flex-1 overflow-y-auto relative">
                   <GestionarObrasView />
+                  {/* Asistente flotante */}
+                  <AsistenteFloating />
                 </div>
-                <AsistenteFloating />
               </div>
             </div>
           </ProtectedRoute>
@@ -104,8 +108,9 @@ function AppRoutes() {
                 <Header />
                 <div className="flex-1 overflow-y-auto relative">
                   <TrabajadoresView />
+                  {/* Asistente flotante */}
+                  <AsistenteFloating />
                 </div>
-                <AsistenteFloating />
               </div>
             </div>
           </ProtectedRoute>
@@ -121,8 +126,9 @@ function AppRoutes() {
                 <Header />
                 <div className="flex-1 overflow-y-auto relative">
                   <AjustesView />
+                  {/* Asistente flotante */}
+                  <AsistenteFloating />
                 </div>
-                <AsistenteFloating />
               </div>
             </div>
           </ProtectedRoute>
