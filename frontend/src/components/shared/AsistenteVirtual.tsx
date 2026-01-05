@@ -90,52 +90,51 @@ export default function AsistenteVirtual({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]" onClick={onClose}>
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-800 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl">
-                🤖
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Asistente Virtual</h2>
-                <p className="text-sm text-gray-400">Pregúntame lo que necesites</p>
-              </div>
+    <div className="w-full h-full bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl flex flex-col">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-800 bg-gradient-to-r from-blue-600/20 to-purple-600/20 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl">
+              🤖
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center"
-            >
-              ×
-            </button>
+            <div>
+              <h2 className="text-xl font-bold text-white">Asistente Virtual</h2>
+              <p className="text-sm text-gray-400">Pregúntame lo que necesites</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center"
+          >
+            ×
+          </button>
         </div>
+      </div>
 
         {/* Mensajes */}
-        <div ref={mensajesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref={mensajesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
           {mensajes.map((msg, idx) => (
             <div
               key={idx}
               className={`flex ${msg.tipo === 'usuario' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-xl px-3 py-2 ${
                   msg.tipo === 'usuario'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-800 text-gray-100'
                 }`}
               >
-                <p className="whitespace-pre-line text-sm">{msg.texto}</p>
+                <p className="whitespace-pre-line text-xs leading-relaxed">{msg.texto}</p>
                 
                 {msg.sugerencias && msg.sugerencias.length > 0 && (
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-2 space-y-1.5">
                     {msg.sugerencias.map((sug, sugIdx) => (
                       <button
                         key={sugIdx}
                         onClick={() => enviarMensaje(sug)}
-                        className="block w-full text-left px-3 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg text-xs text-gray-300 transition-colors"
+                        className="block w-full text-left px-2.5 py-1.5 bg-gray-700/50 hover:bg-gray-700 rounded-md text-xs text-gray-300 transition-colors"
                       >
                         {sug}
                       </button>
@@ -148,7 +147,7 @@ export default function AsistenteVirtual({ onClose }: Props) {
           
           {cargando && (
             <div className="flex justify-start">
-              <div className="bg-gray-800 rounded-2xl px-4 py-3">
+              <div className="bg-gray-800 rounded-xl px-3 py-2">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -162,8 +161,8 @@ export default function AsistenteVirtual({ onClose }: Props) {
         </div>
 
         {/* Input */}
-        <div className="px-6 py-4 border-t border-gray-800 bg-gray-900/50">
-          <div className="flex gap-3">
+        <div className="px-4 py-3 border-t border-gray-800 bg-gray-900/50 flex-shrink-0">
+          <div className="flex gap-2">
             <input
               ref={inputRef}
               type="text"
@@ -171,19 +170,18 @@ export default function AsistenteVirtual({ onClose }: Props) {
               onChange={(e) => setInputMensaje(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Escribe tu pregunta..."
-              className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               disabled={cargando}
             />
             <button
               onClick={() => enviarMensaje()}
               disabled={!inputMensaje.trim() || cargando}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium text-sm"
             >
               Enviar
             </button>
           </div>
         </div>
-      </div>
     </div>
   )
 }
