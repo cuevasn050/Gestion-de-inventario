@@ -15,7 +15,9 @@ export default function AsistenteFloating() {
           marginLeft: 'auto', 
           overflow: 'visible',
           maxHeight: '100%',
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
+          overscrollBehavior: 'none',
+          contain: 'layout style paint'
         }}
         onMouseEnter={(e) => {
           e.stopPropagation()
@@ -46,7 +48,9 @@ export default function AsistenteFloating() {
             marginLeft: 'auto', 
             overflow: 'visible',
             maxHeight: '100%',
-            pointerEvents: 'auto'
+            pointerEvents: 'auto',
+            overscrollBehavior: 'none',
+            contain: 'layout style paint'
           }}
           onMouseEnter={(e) => {
             e.stopPropagation()
@@ -57,6 +61,10 @@ export default function AsistenteFloating() {
         >
           <div 
             className="w-96 h-[600px] flex flex-col shadow-2xl rounded-2xl overflow-hidden border border-gray-700/50 bg-gray-900"
+            style={{
+              overscrollBehavior: 'none',
+              contain: 'layout style paint'
+            }}
             onMouseEnter={(e) => {
               e.stopPropagation()
             }}

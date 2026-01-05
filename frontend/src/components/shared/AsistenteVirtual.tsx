@@ -92,6 +92,10 @@ export default function AsistenteVirtual({ onClose }: Props) {
   return (
     <div 
       className="w-full h-full bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl flex flex-col"
+      style={{
+        overscrollBehavior: 'none',
+        contain: 'layout style paint'
+      }}
       onMouseEnter={(e) => {
         e.stopPropagation()
       }}
@@ -129,6 +133,9 @@ export default function AsistenteVirtual({ onClose }: Props) {
         <div 
           ref={mensajesContainerRef} 
           className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
+          style={{
+            overscrollBehavior: 'contain'
+          }}
           onWheel={(e) => {
             // Prevenir que el scroll se propague a la página
             e.stopPropagation()
