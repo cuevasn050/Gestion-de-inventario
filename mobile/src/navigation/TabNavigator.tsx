@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/DashboardScreen';
@@ -12,6 +13,14 @@ import QRScannerScreen from '../screens/QRScannerScreen';
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+  const insets = useSafeAreaInsets();
+  
+  // Calcular padding dinámico basado en el espacio del sistema de navegación
+  // En Android, bottom inset indica el espacio de los botones de navegación
+  const bottomPadding = Platform.OS === 'android' 
+    ? Math.max(insets.bottom, 8) + 8  // Al menos 8px + el espacio del sistema
+    : 8;
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -20,8 +29,8 @@ export default function TabNavigator() {
           backgroundColor: '#1F2937',
           borderTopWidth: 1,
           borderTopColor: 'rgba(255, 255, 255, 0.1)',
-          height: 65,
-          paddingBottom: Platform.OS === 'android' ? 50 : 8, // Más espacio en Android para los botones del sistema
+          height: 65 + (Platform.OS === 'android' ? Math.max(insets.bottom, 0) : 0), // Ajustar altura si hay inset
+          paddingBottom: bottomPadding,
           paddingTop: 8,
           elevation: 8,
           shadowColor: '#000',
