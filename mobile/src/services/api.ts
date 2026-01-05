@@ -6,18 +6,21 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
-    // Inicializar con URL de producción si está disponible
-    const initialUrl = API_CONFIG.BASE_URL || 'https://aura-backend-u905.onrender.com';
+    // Inicializar con URL de producción directamente
+    const productionUrl = 'https://aura-backend-u905.onrender.com';
     this.api = axios.create({
-      baseURL: initialUrl,
+      baseURL: productionUrl,
       timeout: API_CONFIG.TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    console.log('[API] Base URL inicial:', initialUrl);
+    console.log('[API] Base URL inicial (producción):', productionUrl);
     console.log('[API] Timeout configurado:', API_CONFIG.TIMEOUT, 'ms');
+    
+    // Actualizar API_CONFIG inmediatamente
+    API_CONFIG.BASE_URL = productionUrl;
 
     // Interceptor para agregar token a las peticiones
     this.api.interceptors.request.use(

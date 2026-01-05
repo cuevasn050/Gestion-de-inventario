@@ -19,27 +19,27 @@ let currentApiUrl = PRODUCTION_API_URL;
 
 // Inicializar URL al cargar (síncrono para compatibilidad)
 const initializeApiUrl = () => {
-  // Primero intentar obtener de Expo config
+  // PRIORIDAD 1: URL de producción (siempre disponible)
+  if (PRODUCTION_API_URL && PRODUCTION_API_URL.trim() !== '') {
+    currentApiUrl = PRODUCTION_API_URL;
+    console.log('[API] Inicializando con URL de producción:', currentApiUrl);
+    return;
+  }
+  
+  // PRIORIDAD 2: Expo config
   if (Constants.expoConfig?.extra?.apiUrl) {
     currentApiUrl = Constants.expoConfig.extra.apiUrl;
     return;
   }
   
-  // Si hay variable de entorno, usarla
+  // PRIORIDAD 3: Variable de entorno
   if (process.env.API_URL) {
     currentApiUrl = process.env.API_URL;
     return;
   }
   
-  // Cargar desde AsyncStorage de forma asíncrona (no bloquea)
-  AsyncStorage.getItem(BACKEND_URL_KEY).then(savedUrl => {
-    if (savedUrl && savedUrl.trim() !== '') {
-      currentApiUrl = savedUrl.trim();
-      console.log('[API] URL cargada desde almacenamiento:', currentApiUrl);
-    }
-  }).catch(error => {
-    console.warn('[API] Error al leer URL guardada:', error);
-  });
+  // AsyncStorage solo se carga de forma asíncrona (no bloquea la inicialización)
+  // La URL de producción ya está configurada arriba
 };
 
 // Inicializar al cargar el módulo
