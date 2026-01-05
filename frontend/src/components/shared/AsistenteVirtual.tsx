@@ -26,6 +26,7 @@ export default function AsistenteVirtual({ onClose }: Props) {
   const [inputMensaje, setInputMensaje] = useState('')
   const [cargando, setCargando] = useState(false)
   const mensajesEndRef = useRef<HTMLDivElement>(null)
+  const mensajesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -33,7 +34,10 @@ export default function AsistenteVirtual({ onClose }: Props) {
   }, [])
 
   useEffect(() => {
-    mensajesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Scroll solo dentro del contenedor de mensajes, no en toda la página
+    if (mensajesContainerRef.current && mensajesEndRef.current) {
+      mensajesContainerRef.current.scrollTop = mensajesContainerRef.current.scrollHeight
+    }
   }, [mensajes])
 
   const enviarMensaje = async (texto?: string) => {
@@ -110,7 +114,7 @@ export default function AsistenteVirtual({ onClose }: Props) {
         </div>
 
         {/* Mensajes */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref={mensajesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {mensajes.map((msg, idx) => (
             <div
               key={idx}

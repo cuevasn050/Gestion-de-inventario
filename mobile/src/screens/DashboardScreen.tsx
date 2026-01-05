@@ -26,6 +26,7 @@ import { trabajadoresService } from '../services/trabajadores';
 import { useAuth } from '../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import Svg, { Path, Circle, Line, Text as SvgText, G, Defs, LinearGradient as SvgLinearGradient, Stop, TSpan } from 'react-native-svg';
+import AsistenteVirtual from '../components/AsistenteVirtual';
 
 const { width } = Dimensions.get('window');
 
@@ -39,6 +40,7 @@ export default function DashboardScreen() {
   const [serieSearch, setSerieSearch] = useState('');
   const [mostrarRegresion, setMostrarRegresion] = useState(false);
   const [showPrestarModal, setShowPrestarModal] = useState(false);
+  const [showAsistente, setShowAsistente] = useState(false);
   const [selectedEquipo, setSelectedEquipo] = useState<Equipo | null>(null);
   const [prestarData, setPrestarData] = useState({
     trabajador_rut: '',
@@ -296,7 +298,7 @@ export default function DashboardScreen() {
                 </TouchableOpacity>
               </View>
               <View style={styles.chartContent}>
-                <Svg width={width - 80} height={250} viewBox={`0 0 ${width - 80} 250`}>
+                <Svg width={width - 80} height={280} viewBox={`0 0 ${width - 80} 280`}>
                   <Defs>
                     <SvgLinearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <Stop offset="0%" stopColor="rgba(255, 107, 53, 0.8)" />
@@ -305,12 +307,98 @@ export default function DashboardScreen() {
                   </Defs>
                   
                   {/* Ejes */}
-                  <Line x1="40" y1="20" x2="40" y2="220" stroke="#6B7280" strokeWidth="2" />
-                  <Line x1="40" y1="220" x2={width - 120} y2="220" stroke="#6B7280" strokeWidth="2" />
+                  <Line x1="50" y1="20" x2="50" y2="220" stroke="#6B7280" strokeWidth="2" />
+                  <Line x1="50" y1="220" x2={width - 120} y2="220" stroke="#6B7280" strokeWidth="2" />
+                  
+                  {/* Etiquetas del eje Y - Cantidad de préstamos */}
+                  {[0, Math.ceil(maxY / 4), Math.ceil(maxY / 2), Math.ceil(maxY * 3 / 4), Math.ceil(maxY)].map((valor, i) => {
+                    const y = 220 - (valor / maxY) * 200;
+                    return (
+                      <G key={`y-label-${i}`}>
+                        <Line
+                          x1="45"
+                          y1={y}
+                          x2="50"
+                          y2={y}
+                          stroke="#9CA3AF"
+                          strokeWidth="1"
+                        />
+                        <SvgText
+                          x="42"
+                          y={y + 4}
+                          fill="#D1D5DB"
+                          fontSize="10"
+                          textAnchor="end"
+                          fontWeight="500"
+                        >
+                          {Math.round(valor)}
+                        </SvgText>
+                      </G>
+                    );
+                  })}
+                  
+                  {/* Etiquetas del eje X - Días del mes */}
+                  {(() => {
+                    const diasParaMostrar = [];
+                    const intervalo = Math.max(1, Math.ceil(diaActual / 8)); // Mostrar aproximadamente 8 etiquetas
+                    for (let dia = 1; dia <= diaActual; dia += intervalo) {
+                      diasParaMostrar.push(dia);
+                    }
+                    if (diasParaMostrar[diasParaMostrar.length - 1] !== diaActual) {
+                      diasParaMostrar.push(diaActual);
+                    }
+                    return diasParaMostrar.map((dia) => {
+                      const x = 50 + ((dia - 1) / (diaActual - 1)) * (width - 170);
+                      return (
+                        <G key={`x-label-${dia}`}>
+                          <Line
+                            x1={x}
+                            y1="220"
+                            x2={x}
+                            y2="225"
+                            stroke="#9CA3AF"
+                            strokeWidth="1"
+                          />
+                          <SvgText
+                            x={x}
+                            y="240"
+                            fill="#D1D5DB"
+                            fontSize="10"
+                            textAnchor="middle"
+                            fontWeight="500"
+                          >
+                            {dia}
+                          </SvgText>
+                        </G>
+                      );
+                    });
+                  })()}
+                  
+                  {/* Títulos de ejes */}
+                  <SvgText
+                    x={(width - 80) / 2}
+                    y="265"
+                    fill="#9CA3AF"
+                    fontSize="11"
+                    textAnchor="middle"
+                    fontWeight="600"
+                  >
+                    Día del Mes
+                  </SvgText>
+                  <SvgText
+                    x="15"
+                    y="130"
+                    fill="#9CA3AF"
+                    fontSize="11"
+                    textAnchor="middle"
+                    fontWeight="600"
+                  >
+                    Cantidad de Préstamos
+                  </SvgText>
                   
                   {/* Puntos de datos */}
                   {datosCompletos.map((d: any, i: number) => {
-                    const x = 40 + ((d.dia - 1) / (diaActual - 1)) * (width - 160);
+                    const x = 50 + ((d.dia - 1) / (diaActual - 1)) * (width - 170);
                     const y = 220 - (d.cantidad / maxY) * 200;
                     return (
                       <G key={i}>
@@ -328,7 +416,7 @@ export default function DashboardScreen() {
                   {mostrarRegresion && puntosRegresion.length > 1 && (
                     <Path
                       d={`M ${puntosRegresion.map((p: any, i: number) => {
-                        const x = 40 + ((p.x - 1) / (diaActual - 1)) * (width - 160);
+                        const x = 50 + ((p.x - 1) / (diaActual - 1)) * (width - 170);
                         const y = 220 - (p.y / maxY) * 200;
                         return i === 0 ? `${x} ${y}` : `L ${x} ${y}`;
                       }).join(' ')}`}
@@ -358,7 +446,7 @@ export default function DashboardScreen() {
                 <Svg width={200} height={200} viewBox="0 0 200 200">
                   {(() => {
                     let anguloInicio = -90;
-                    const segmentos = [];
+                    const segmentos: any[] = [];
                     dispositivosMasUsados.forEach((item: any) => {
                       if (item.cantidad > 0) {
                         const porcentaje = (item.cantidad / totalDispositivos) * 100;
@@ -372,23 +460,61 @@ export default function DashboardScreen() {
                         const y2 = 100 + 70 * Math.sin(finRad);
                         const largeArcFlag = angulo > 180 ? 1 : 0;
                         const pathData = `M 100 100 L ${x1} ${y1} A 70 70 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-                        segmentos.push({ pathData, color: item.color, nombre: item.nombre, cantidad: item.cantidad, porcentaje });
+                        // Calcular posición del texto (centro del segmento)
+                        const anguloMedio = (anguloInicio + anguloFin) / 2;
+                        const anguloMedioRad = (anguloMedio * Math.PI) / 180;
+                        const radioTexto = 50; // Radio más pequeño para el texto
+                        const xTexto = 100 + radioTexto * Math.cos(anguloMedioRad);
+                        const yTexto = 100 + radioTexto * Math.sin(anguloMedioRad);
+                        segmentos.push({ 
+                          pathData, 
+                          color: item.color, 
+                          nombre: item.nombre, 
+                          cantidad: item.cantidad, 
+                          porcentaje: porcentaje.toFixed(1),
+                          xTexto,
+                          yTexto
+                        });
                         anguloInicio = anguloFin;
                       }
                     });
                     return segmentos.map((seg, idx) => (
-                      <Path key={idx} d={seg.pathData} fill={seg.color} stroke="#1F2937" strokeWidth="2" />
+                      <G key={idx}>
+                        <Path d={seg.pathData} fill={seg.color} stroke="#1F2937" strokeWidth="2" />
+                        {/* Mostrar porcentaje si es > 5% */}
+                        {parseFloat(seg.porcentaje) > 5 && (
+                          <SvgText
+                            x={seg.xTexto}
+                            y={seg.yTexto}
+                            fill="white"
+                            fontSize="11"
+                            fontWeight="bold"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            {seg.porcentaje}%
+                          </SvgText>
+                        )}
+                      </G>
                     ));
                   })()}
                 </Svg>
                 <View style={styles.pieLegend}>
-                  {dispositivosMasUsados.filter((d: any) => d.cantidad > 0).map((item: any, idx: number) => (
-                    <View key={idx} style={styles.pieLegendItem}>
-                      <View style={[styles.pieLegendColor, { backgroundColor: item.color }]} />
-                      <Text style={styles.pieLegendText}>{item.nombre}</Text>
-                      <Text style={styles.pieLegendValue}>{item.cantidad}</Text>
-                    </View>
-                  ))}
+                  {dispositivosMasUsados.filter((d: any) => d.cantidad > 0).map((item: any, idx: number) => {
+                    const porcentaje = ((item.cantidad / totalDispositivos) * 100).toFixed(1);
+                    return (
+                      <View key={idx} style={styles.pieLegendItem}>
+                        <View style={[styles.pieLegendColor, { backgroundColor: item.color }]} />
+                        <Text style={styles.pieLegendText}>{item.nombre}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                          <Text style={styles.pieLegendValue}>{item.cantidad}</Text>
+                          <Text style={[styles.pieLegendValue, { color: '#9CA3AF', fontSize: 11 }]}>
+                            ({porcentaje}%)
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
               </View>
             </View>
@@ -465,6 +591,24 @@ export default function DashboardScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Botón flotante del asistente virtual */}
+      <TouchableOpacity
+        style={[styles.asistenteFab, { bottom: Math.max(insets.bottom, 20) + 80 }]}
+        onPress={() => setShowAsistente(true)}
+      >
+        <LinearGradient
+          colors={['#3B82F6', '#2563EB']}
+          style={styles.asistenteFabGradient}
+        >
+          <Text style={styles.asistenteFabText}>🤖</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
+      {/* Modal Asistente Virtual */}
+      {showAsistente && (
+        <AsistenteVirtual onClose={() => setShowAsistente(false)} />
+      )}
 
       {/* Modal Prestar Equipo */}
       <Modal
@@ -1008,5 +1152,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     marginLeft: 8,
+  },
+  asistenteFab: {
+    position: 'absolute',
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 10,
+    zIndex: 999,
+  },
+  asistenteFabGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  asistenteFabText: {
+    fontSize: 28,
   },
 });
