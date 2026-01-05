@@ -22,12 +22,16 @@ export default function LoginScreen({ navigation }: any) {
   const [showUrlConfig, setShowUrlConfig] = useState(false);
   const [backendUrl, setBackendUrl] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
+  const [hasProductionUrl, setHasProductionUrl] = useState(true); // Por defecto asumimos que hay URL de producción
   const { login } = useAuth();
 
   // Cargar URL actual al montar (no mostrar modal automáticamente, la URL de producción ya está configurada)
   React.useEffect(() => {
     getApiUrlAsync().then(url => {
       setBackendUrl(url || '');
+      // Verificar si es la URL de producción
+      const isProduction = url && (url.includes('aura-backend-u905.onrender.com') || url.includes('onrender.com'));
+      setHasProductionUrl(isProduction || false);
       // NO mostrar el modal automáticamente - la URL de producción ya está configurada
       // Solo mostrar si el usuario explícitamente quiere configurar una URL diferente
     });
