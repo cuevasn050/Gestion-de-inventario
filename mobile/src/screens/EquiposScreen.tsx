@@ -550,7 +550,11 @@ export default function EquiposScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+              style={styles.modalForm} 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Serie *</Text>
                 <TextInput
