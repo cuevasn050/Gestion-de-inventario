@@ -1,8 +1,9 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, and_
 from ..database import get_db
-from ..models import Trabajador, Usuario, RolUsuario
+from ..models import Trabajador, Usuario, RolUsuario, Prestamo, EstadoPrestamo
 from ..schemas import TrabajadorResponse, TrabajadorCreate, TrabajadorUpdate
 from ..auth import get_current_user, require_role
 
@@ -105,6 +106,36 @@ def marcar_despido(
     trabajador.activo = False
     db.commit()
     return {"message": "Trabajador marcado como despedido", "trabajador": trabajador}
+
+
+@router.delete("/{rut}")
+def delete_trabajador(
+    rut: str,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_role([RolUsuario.INFORMATICA, RolUsuario.RRHH]))
+):
+    """Eliminar trabajador (Informática o RRHH) - solo si no tiene préstamos activos"""
+    trabajador = db.query(Trabajador).filter(Trabajador.rut == rut).first()
+    if not trabajador:
+        raise HTTPException(status_code=404, detail="Trabajador no encontrado")
+    
+    # Verificar si tiene préstamos activos
+    prestamos_activos = db.query(func.count(Prestamo.id)).filter(
+        and_(
+            Prestamo.trabajador_rut == rut,
+            Prestamo.estado_prestamo == EstadoPrestamo.ASIGNADO
+        )
+    ).scalar()
+    
+    if prestamos_activos > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"No se puede eliminar el trabajador porque tiene {prestamos_activos} préstamo(s) activo(s). Primero debe devolver todos los equipos."
+        )
+    
+    db.delete(trabajador)
+    db.commit()
+    return {"message": "Trabajador eliminado exitosamente"}
 
 
 

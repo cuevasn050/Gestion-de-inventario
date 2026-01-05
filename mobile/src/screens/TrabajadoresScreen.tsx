@@ -113,6 +113,18 @@ export default function TrabajadoresScreen() {
     },
   });
 
+  const deleteTrabajadorMutation = useMutation({
+    mutationFn: (rut: string) => trabajadoresService.delete(rut),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trabajadores'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      Alert.alert('Éxito', 'Trabajador eliminado exitosamente');
+    },
+    onError: (error: any) => {
+      Alert.alert('Error', error.response?.data?.detail || 'Error al eliminar trabajador');
+    },
+  });
+
   const filteredTrabajadores = trabajadores.filter((t) => {
     if (!search || typeof search !== 'string' || !search.trim()) return true;
     try {
@@ -160,6 +172,22 @@ export default function TrabajadoresScreen() {
           text: 'Confirmar',
           style: 'destructive',
           onPress: () => marcarDespidoMutation.mutate(trabajador.rut),
+        },
+      ]
+    );
+  };
+
+  const handleEliminar = (trabajador: Trabajador, e: any) => {
+    e.stopPropagation();
+    Alert.alert(
+      'Confirmar',
+      `¿Estás seguro de que quieres eliminar a ${trabajador.nombre}? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => deleteTrabajadorMutation.mutate(trabajador.rut),
         },
       ]
     );
@@ -282,6 +310,15 @@ export default function TrabajadoresScreen() {
                         disabled={marcarDespidoMutation.isPending}
                       >
                         <Text style={styles.despidoButtonText}>Despedir</Text>
+                      </TouchableOpacity>
+                    )}
+                    {(user?.rol === 'INFORMATICA' || user?.rol === 'RRHH') && (
+                      <TouchableOpacity
+                        style={styles.eliminarButton}
+                        onPress={(e) => handleEliminar(trabajador, e)}
+                        disabled={deleteTrabajadorMutation.isPending}
+                      >
+                        <Text style={styles.eliminarButtonText}>🗑️ Eliminar</Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -776,6 +813,20 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(153, 27, 27, 0.5)',
   },
   despidoButtonText: {
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  eliminarButton: {
+    backgroundColor: 'rgba(153, 27, 27, 0.3)',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(153, 27, 27, 0.5)',
+    marginTop: 8,
+  },
+  eliminarButtonText: {
     color: '#dc2626',
     fontSize: 14,
     fontWeight: '600',

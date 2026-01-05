@@ -53,10 +53,31 @@ export default function TrabajadoresView() {
     },
   })
 
+  // Mutation para eliminar trabajador
+  const deleteTrabajadorMutation = useMutation({
+    mutationFn: (rut: string) => trabajadoresService.delete(rut),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trabajadores'] })
+      queryClient.invalidateQueries({ queryKey: ['alertas'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      showToast('Trabajador eliminado exitosamente', 'success')
+    },
+    onError: (err: any) => {
+      showToast(err.response?.data?.detail || 'Error al eliminar trabajador', 'error')
+    },
+  })
+
   const handleMarcarDespido = (rut: string, nombre: string, e: React.MouseEvent) => {
     e.stopPropagation()
     if (window.confirm(`¿Marcar a ${nombre} como despedido?`)) {
       marcarDespidoMutation.mutate(rut)
+    }
+  }
+
+  const handleEliminar = (rut: string, nombre: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (window.confirm(`¿Estás seguro de que quieres eliminar a ${nombre}? Esta acción no se puede deshacer.`)) {
+      deleteTrabajadorMutation.mutate(rut)
     }
   }
 
@@ -225,15 +246,26 @@ export default function TrabajadoresView() {
               </div>
 
               {/* Acciones */}
-              {user?.rol === 'RRHH' && trabajador.activo && (
-                <button
-                  onClick={(e) => handleMarcarDespido(trabajador.rut, trabajador.nombre, e)}
-                  className="w-full mt-3 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors text-sm font-medium border border-red-600/30"
-                  disabled={marcarDespidoMutation.isPending}
-                >
-                  🚫 Marcar como Despedido
-                </button>
-              )}
+              <div className="mt-3 space-y-2">
+                {user?.rol === 'RRHH' && trabajador.activo && (
+                  <button
+                    onClick={(e) => handleMarcarDespido(trabajador.rut, trabajador.nombre, e)}
+                    className="w-full px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors text-sm font-medium border border-red-600/30"
+                    disabled={marcarDespidoMutation.isPending}
+                  >
+                    🚫 Marcar como Despedido
+                  </button>
+                )}
+                {(user?.rol === 'INFORMATICA' || user?.rol === 'RRHH') && (
+                  <button
+                    onClick={(e) => handleEliminar(trabajador.rut, trabajador.nombre, e)}
+                    className="w-full px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors text-sm font-medium border border-red-600/30"
+                    disabled={deleteTrabajadorMutation.isPending}
+                  >
+                    🗑️ Eliminar
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -26,6 +26,10 @@ export const trabajadoresService = {
     const { data } = await api.put(`/api/trabajadores/${rut}/despido`)
     return data
   },
+  
+  delete: async (rut: string) => {
+    await api.delete(`/api/trabajadores/${rut}`)
+  },
 }
 
 

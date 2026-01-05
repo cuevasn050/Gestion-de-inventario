@@ -38,5 +38,9 @@ export const trabajadoresService = {
   async marcarDespido(rut: string): Promise<void> {
     await api.put(`/api/trabajadores/${rut}/despido`);
   },
+
+  async delete(rut: string): Promise<void> {
+    await api.delete(`/api/trabajadores/${rut}`);
+  },
 };
 
