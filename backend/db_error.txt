@@ -1,0 +1,4 @@
+Connection failed: (psycopg2.OperationalError) connection to server at "db.ypohmqzkhoewahqjystl.supabase.co" (2600:1f18:2e13:9d3c:c30b:23ae:f3a7:c384), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "db.ypohmqzkhoewahqjystl.supabase.co" (2600:1f18:2e13:9d3c:c30b:23ae:f3a7:c384), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
