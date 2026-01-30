@@ -53,7 +53,7 @@ def get_alertas(
         and_(
             Prestamo.estado_prestamo == EstadoPrestamo.ASIGNADO,
             Prestamo.fecha_vencimiento >= hoy,
-            Prestamo.fecha_vencimiento <= hoy + datetime.timedelta(days=3)
+            Prestamo.fecha_vencimiento <= hoy + timedelta(days=3)
         )
     )
     
