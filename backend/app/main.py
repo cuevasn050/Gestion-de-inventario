@@ -26,15 +26,29 @@ import os
 from .config import settings
 
 # Obtener orígenes permitidos desde variables de entorno o usar defaults
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,https://gestion-de-inventario-aeu5.onrender.com,https://aura-backend-u905.onrender.com")
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+
+origins = []
 if cors_origins:
-    origins = [origin.strip() for origin in cors_origins.split(",")]
-else:
+    origins = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
+
+# SIEMPRE agregar los orígenes de producción (hardcoded) para asegurar que funcionen
+# independientemente de la configuración de variables de entorno
+production_origins = [
+    "https://gestion-de-inventario-aeu5.onrender.com",
+    "https://aura-backend-u905.onrender.com"
+]
+
+for origin in production_origins:
+    if origin not in origins:
+        origins.append(origin)
+
+if not origins:
     origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins if origins != ["*"] else ["*"],  # Permitir todos en desarrollo, específicos en producción
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
