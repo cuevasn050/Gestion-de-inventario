@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from datetime import datetime
+from datetime import datetime, timedelta
 from ..database import get_db
 from ..models import Prestamo, Trabajador, Equipo, EstadoPrestamo, Usuario, RolUsuario
 from ..schemas import AlertaResponse
@@ -53,7 +53,7 @@ def get_alertas(
         and_(
             Prestamo.estado_prestamo == EstadoPrestamo.ASIGNADO,
             Prestamo.fecha_vencimiento >= hoy,
-            Prestamo.fecha_vencimiento <= hoy.replace(day=hoy.day + 3) if hoy.day + 3 <= 31 else hoy
+            Prestamo.fecha_vencimiento <= hoy + datetime.timedelta(days=3)
         )
     )
     
